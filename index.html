@@ -449,49 +449,49 @@
     }
 
     /* ==========================================================================
-       5. PRINTABLE CARDS - INK SAVER (WHITE BACKGROUND)
+       5. PRINTABLE CARDS - 4 CARDS PER SINGLE A4 PAGE
        ========================================================================== */
     .cards-container {
-      display: flex;
-      flex-direction: column;
-      gap: 40px;
-      align-items: center;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 10px;
       width: 100%;
+      max-width: 800px;
       background: #ffffff;
-      padding: 20px;
+      padding: 15px;
       border-radius: 8px;
+      box-sizing: border-box;
     }
 
     .bingo-card {
-      width: 18cm;
-      height: 24cm;
       background: #ffffff;
-      border: 6px solid #000000;
-      padding: 15px;
+      border: 3px solid #000000;
+      padding: 8px;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      page-break-after: always;
       color: #000000;
+      height: 100%;
     }
 
     .card-header {
       background: #ffffff;
-      border: 4px solid #000000;
-      padding: 10px;
+      border: 2px solid #000000;
+      padding: 4px;
       text-align: center;
     }
 
     .card-header h2 {
-      font-size: 1.6rem;
+      font-size: 0.9rem;
       color: #000000;
       text-shadow: none;
     }
 
     .card-header p {
-      font-size: 0.7rem;
-      margin-top: 4px;
+      font-size: 0.5rem;
+      margin-top: 2px;
       color: #444444;
       font-weight: bold;
     }
@@ -500,45 +500,75 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       grid-template-rows: repeat(4, 1fr);
-      gap: 8px;
+      gap: 4px;
       flex-grow: 1;
-      margin-top: 15px;
+      margin-top: 8px;
     }
 
     .bingo-cell {
       background: #ffffff;
-      border: 3px solid #000000;
+      border: 2px solid #000000;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 6px;
+      padding: 2px;
       text-align: center;
     }
 
     .cell-img {
-      width: 52px;
-      height: 52px;
+      width: 28px;
+      height: 28px;
       object-fit: contain;
-      margin-bottom: 6px;
+      margin-bottom: 2px;
     }
 
     .cell-name {
-      font-size: 0.6rem;
+      font-size: 0.42rem;
       color: #000000;
-      line-height: 1.2;
+      line-height: 1.1;
       font-weight: bold;
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 8mm;
     }
 
     @media print {
       body { 
         background: #ffffff !important; 
         color: #000000 !important; 
+        padding: 0 !important;
+        margin: 0 !important;
+        display: block !important;
       }
       .screen, .winner-overlay { display: none !important; }
-      #print-screen { display: block !important; width: 100% !important; margin: 0 !important; }
-      .cards-container { gap: 0; padding: 0; background: #ffffff !important; }
-      .bingo-card { margin: 0 auto; border-color: #000; box-shadow: none; page-break-after: always; }
+      #print-screen { 
+        display: block !important; 
+        width: 100% !important; 
+        height: 100% !important;
+        margin: 0 !important; 
+        padding: 0 !important;
+      }
+      .cards-container { 
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-rows: repeat(2, 1fr) !important;
+        gap: 8mm !important;
+        padding: 0 !important; 
+        width: 100% !important;
+        height: 275mm !important; /* Perfect fit for A4 printable height */
+        background: #ffffff !important; 
+        box-sizing: border-box !important;
+      }
+      .bingo-card { 
+        margin: 0 !important; 
+        border-width: 3px !important; 
+        box-shadow: none !important; 
+        page-break-inside: avoid !important; 
+        height: 100% !important;
+      }
       .no-print { display: none !important; }
     }
   </style>
