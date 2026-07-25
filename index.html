@@ -576,7 +576,7 @@
         </div>
 
         <div class="item-display" id="item-display">
-          <img id="item-icon" class="item-img-large pixelated" src="https://mc-heads.net/head/MHF_Chest/64" alt="Chest" onerror="app.handleImgError(this)">
+          <img id="item-icon" class="item-img-large pixelated" src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/chest_front.png" alt="Chest" onerror="app.handleImgError(this)">
           <div class="item-title" id="item-name">READY?</div>
           <div class="item-category" id="item-category">Press Draw</div>
         </div>
@@ -680,35 +680,36 @@
 
   <script>
     /* ==========================================================================
-       1. MINECRAFT ITEM DATABASE (Tested high-reliability Wikimedia / MC CDN URLs)
+       1. MINECRAFT ITEM DATABASE (Direct GitHub raw assets - CORS Safe)
        ========================================================================== */
-    const FALLBACK_SVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23555'/><rect x='2' y='2' width='12' height='12' fill='%23888'/><text x='8' y='12' font-size='10' text-anchor='middle' fill='%23fff' font-family='sans-serif'>⛏</text></svg>";
+    const BASE_ITEM_URL = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/";
+    const BASE_BLOCK_URL = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/";
 
     const MINECRAFT_ITEMS = [
-      { name: "Diamond", img: "https://upload.wikimedia.org/wikipedia/commons/a/a8/Minecraft_Diamond.png", category: "Ores & Gems" },
-      { name: "Emerald", img: "https://upload.wikimedia.org/wikipedia/commons/2/26/Minecraft_Emerald.png", category: "Ores & Gems" },
-      { name: "Coal", img: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Minecraft_Coal.png", category: "Ores & Gems" },
-      { name: "Iron Ingot", img: "https://upload.wikimedia.org/wikipedia/commons/f/f4/Minecraft_Iron_Ingot.png", category: "Materials" },
-      { name: "Gold Ingot", img: "https://upload.wikimedia.org/wikipedia/commons/e/ea/Minecraft_Gold_Ingot.png", category: "Materials" },
-      { name: "Redstone", img: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Minecraft_Redstone_Dust.png", category: "Mechanics" },
-      { name: "Chest", img: "https://mc-heads.net/head/MHF_Chest/64", category: "Utility" },
-      { name: "Crafting Table", img: "https://mc-heads.net/head/MHF_OakLog/64", category: "Utility" },
-      { name: "Cake", img: "https://upload.wikimedia.org/wikipedia/commons/0/02/Minecraft_Cake.png", category: "Food" },
-      { name: "Apple", img: "https://upload.wikimedia.org/wikipedia/commons/a/af/Minecraft_Apple.png", category: "Food" },
-      { name: "Golden Apple", img: "https://upload.wikimedia.org/wikipedia/commons/0/0a/Minecraft_Golden_Apple.png", category: "Food" },
-      { name: "TNT", img: "https://mc-heads.net/head/MHF_TNT/64", category: "Blocks" },
-      { name: "Diamond Sword", img: "https://upload.wikimedia.org/wikipedia/commons/2/23/Minecraft_Diamond_Sword.png", category: "Combat" },
-      { name: "Diamond Pickaxe", img: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Minecraft_Diamond_Pickaxe.png", category: "Tools" },
-      { name: "Water Bucket", img: "https://upload.wikimedia.org/wikipedia/commons/7/7f/Minecraft_Water_Bucket.png", category: "Tools" },
-      { name: "Lava Bucket", img: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Minecraft_Lava_Bucket.png", category: "Tools" },
-      { name: "Red Bed", img: "https://upload.wikimedia.org/wikipedia/commons/c/c2/Minecraft_Bed.png", category: "Utility" },
-      { name: "Ender Pearl", img: "https://upload.wikimedia.org/wikipedia/commons/2/26/Minecraft_Ender_Pearl.png", category: "Special" },
-      { name: "Totem of Undying", img: "https://upload.wikimedia.org/wikipedia/commons/2/22/Minecraft_Totem.png", category: "Special" },
-      { name: "Feather", img: "https://upload.wikimedia.org/wikipedia/commons/b/b3/Minecraft_Feather.png", category: "Materials" },
-      { name: "Bone", img: "https://upload.wikimedia.org/wikipedia/commons/3/3b/Minecraft_Bone.png", category: "Materials" },
-      { name: "Cookie", img: "https://upload.wikimedia.org/wikipedia/commons/7/70/Minecraft_Cookie.png", category: "Food" },
-      { name: "Bread", img: "https://upload.wikimedia.org/wikipedia/commons/9/94/Minecraft_Bread.png", category: "Food" },
-      { name: "Book", img: "https://upload.wikimedia.org/wikipedia/commons/b/b6/Minecraft_Book.png", category: "Materials" }
+      { name: "Diamond", img: BASE_ITEM_URL + "diamond.png", category: "Ores & Gems" },
+      { name: "Emerald", img: BASE_ITEM_URL + "emerald.png", category: "Ores & Gems" },
+      { name: "Coal", img: BASE_ITEM_URL + "coal.png", category: "Ores & Gems" },
+      { name: "Iron Ingot", img: BASE_ITEM_URL + "iron_ingot.png", category: "Materials" },
+      { name: "Gold Ingot", img: BASE_ITEM_URL + "gold_ingot.png", category: "Materials" },
+      { name: "Redstone", img: BASE_ITEM_URL + "redstone.png", category: "Mechanics" },
+      { name: "Chest", img: BASE_BLOCK_URL + "chest_front.png", category: "Utility" },
+      { name: "Crafting Table", img: BASE_BLOCK_URL + "crafting_table_front.png", category: "Utility" },
+      { name: "Cake", img: BASE_ITEM_URL + "cake.png", category: "Food" },
+      { name: "Apple", img: BASE_ITEM_URL + "apple.png", category: "Food" },
+      { name: "Golden Apple", img: BASE_ITEM_URL + "golden_apple.png", category: "Food" },
+      { name: "TNT", img: BASE_BLOCK_URL + "tnt_side.png", category: "Blocks" },
+      { name: "Diamond Sword", img: BASE_ITEM_URL + "diamond_sword.png", category: "Combat" },
+      { name: "Diamond Pickaxe", img: BASE_ITEM_URL + "diamond_pickaxe.png", category: "Tools" },
+      { name: "Water Bucket", img: BASE_ITEM_URL + "water_bucket.png", category: "Tools" },
+      { name: "Lava Bucket", img: BASE_ITEM_URL + "lava_bucket.png", category: "Tools" },
+      { name: "Red Bed", img: BASE_ITEM_URL + "red_bed.png", category: "Utility" },
+      { name: "Ender Pearl", img: BASE_ITEM_URL + "ender_pearl.png", category: "Special" },
+      { name: "Totem of Undying", img: BASE_ITEM_URL + "totem_of_undying.png", category: "Special" },
+      { name: "Feather", img: BASE_ITEM_URL + "feather.png", category: "Materials" },
+      { name: "Bone", img: BASE_ITEM_URL + "bone.png", category: "Materials" },
+      { name: "Cookie", img: BASE_ITEM_URL + "cookie.png", category: "Food" },
+      { name: "Bread", img: BASE_ITEM_URL + "bread.png", category: "Food" },
+      { name: "Book", img: BASE_ITEM_URL + "book.png", category: "Materials" }
     ];
 
     /* ==========================================================================
@@ -776,8 +777,9 @@
       }
 
       handleImgError(img) {
+        // Simple pixelated box fallback if network is completely offline
         img.onerror = null;
-        img.src = FALLBACK_SVG;
+        img.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23737373'/><rect x='2' y='2' width='12' height='12' fill='%23555555'/><text x='8' y='12' font-size='10' text-anchor='middle' fill='%23f1c40f' font-family='sans-serif'>?</text></svg>";
       }
 
       showScreen(screenId) {
@@ -800,7 +802,7 @@
         const display = document.getElementById('item-display');
         display.classList.remove('visible');
         document.getElementById('item-name').innerText = "READY?";
-        document.getElementById('item-icon').src = "https://mc-heads.net/head/MHF_Chest/64";
+        document.getElementById('item-icon').src = BASE_BLOCK_URL + "chest_front.png";
         document.getElementById('item-category').innerText = "Press Draw";
         document.getElementById('history-list').innerHTML = "";
       }
