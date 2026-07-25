@@ -131,26 +131,32 @@
     }
 
     /* ==========================================================================
-       2. HOME SCREEN
+       2. HOME SCREEN & RESPONSIVE TITLE
        ========================================================================== */
     .title-banner {
       background: var(--mc-dark-stone);
-      padding: 30px 40px;
+      padding: 20px 15px;
       border: 6px solid #000;
       box-shadow: inset -6px -6px 0px #222, inset 6px 6px 0px #999;
       position: relative;
+      width: 100%;
+      max-width: 600px;
     }
 
     .title-banner h1 {
-      font-size: 2.8rem;
+      /* Scales fluidly: Minimum 1.3rem, ideal 6.5vw, max 2.8rem */
+      font-size: clamp(1.3rem, 6.5vw, 2.8rem);
       color: var(--mc-yellow);
-      text-shadow: 4px 4px 0px #000;
-      letter-spacing: 2px;
+      text-shadow: 3px 3px 0px #000;
+      letter-spacing: 1px;
       margin-bottom: 15px;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      line-height: 1.25;
     }
 
     .title-banner p {
-      font-size: 0.9rem;
+      font-size: clamp(0.6rem, 2.5vw, 0.9rem);
       color: #ddd;
       text-shadow: 2px 2px 0px #000;
       line-height: 1.5;
@@ -378,7 +384,7 @@
     }
 
     .modal-box h2 {
-      font-size: 1.4rem;
+      font-size: clamp(1rem, 4vw, 1.4rem);
       color: var(--mc-yellow);
       text-shadow: 2px 2px 0px #000;
       margin-bottom: 20px;
@@ -437,7 +443,7 @@
     .winner-overlay.active { display: flex; }
 
     .winner-title {
-      font-size: 2.5rem;
+      font-size: clamp(1.5rem, 8vw, 2.5rem);
       color: var(--mc-yellow);
       animation: bounce 0.6s infinite alternate;
       text-shadow: 4px 4px 0px #000;
@@ -558,7 +564,7 @@
         gap: 8mm !important;
         padding: 0 !important; 
         width: 100% !important;
-        height: 275mm !important; /* Perfect fit for A4 printable height */
+        height: 275mm !important;
         background: #ffffff !important; 
         box-sizing: border-box !important;
       }
