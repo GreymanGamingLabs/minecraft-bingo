@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft Bingo Caller</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. MINECRAFT STYLES & CORE ENGINE
+       ========================================================================== */
+    :root {
+      --mc-green: #5b8731;
+      --mc-dark-green: #38511e;
+      --mc-dirt: #866043;
+      --mc-dark-dirt: #573d28;
+      --mc-stone: #737373;
+      --mc-dark-stone: #404040;
+      --mc-wood: #a07246;
+      --mc-wood-dark: #6e4b28;
+      --mc-emerald: #17dd62;
+      --mc-emerald-dark: #0a7332;
+      --mc-yellow: #f1c40f;
+      --mc-text-shadow: 2px 2px 0px #000;
+      --font-pixel: 'Press Start 2P', 'Courier New', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: var(--font-pixel);
+      background-color: #111;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.8) 100%),
+        repeating-linear-gradient(0deg, transparent, transparent 32px, rgba(0,0,0,0.15) 32px, rgba(0,0,0,0.15) 64px),
+        repeating-linear-gradient(90deg, #4c6828 0px, #4c6828 32px, #3f5720 32px, #3f5720 64px);
+      background-size: cover, 100% 100%, 64px 64px;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    /* Pixelated image rendering for genuine Minecraft crispness */
+    img.pixelated {
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+    }
+
+    .pixel-box {
+      border: 4px solid #000;
+      box-shadow: 
+        inset -4px -4px 0px rgba(0,0,0,0.4),
+        inset 4px 4px 0px rgba(255,255,255,0.2);
+    }
+
+    .pixel-btn {
+      font-family: var(--font-pixel);
+      padding: 12px 20px;
+      font-size: 0.85rem;
+      color: #fff;
+      background-color: var(--mc-wood);
+      border: 4px solid #000;
+      box-shadow: 
+        inset -4px -4px 0px var(--mc-wood-dark),
+        inset 4px 4px 0px #d89b65;
+      cursor: pointer;
+      text-shadow: var(--mc-text-shadow);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.1s;
+      text-decoration: none;
+    }
+
+    .pixel-btn:hover {
+      background-color: #b58252;
+      transform: scale(1.02);
+    }
+
+    .pixel-btn:active {
+      transform: scale(0.98);
+      box-shadow: 
+        inset 4px 4px 0px var(--mc-wood-dark),
+        inset -4px -4px 0px #d89b65;
+    }
+
+    .pixel-btn.btn-emerald {
+      background-color: var(--mc-emerald);
+      box-shadow: 
+        inset -4px -4px 0px var(--mc-emerald-dark),
+        inset 4px 4px 0px #61f396;
+    }
+
+    .pixel-btn.btn-emerald:hover { background-color: #26e66e; }
+
+    .pixel-btn.btn-danger {
+      background-color: #e74c3c;
+      box-shadow: 
+        inset -4px -4px 0px #962d22,
+        inset 4px 4px 0px #f1948a;
+    }
+
+    .screen {
+      display: none;
+      width: 90%;
+      max-width: 1000px;
+      margin: 20px auto;
+      text-align: center;
+      z-index: 10;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* ==========================================================================
+       2. HOME SCREEN
+       ========================================================================== */
+    .title-banner {
+      background: var(--mc-dark-stone);
+      padding: 30px 40px;
+      border: 6px solid #000;
+      box-shadow: inset -6px -6px 0px #222, inset 6px 6px 0px #999;
+      position: relative;
+    }
+
+    .title-banner h1 {
+      font-size: 2.8rem;
+      color: var(--mc-yellow);
+      text-shadow: 4px 4px 0px #000;
+      letter-spacing: 2px;
+      margin-bottom: 15px;
+    }
+
+    .title-banner p {
+      font-size: 0.9rem;
+      color: #ddd;
+      text-shadow: 2px 2px 0px #000;
+      line-height: 1.5;
+    }
+
+    .menu-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    /* ==========================================================================
+       3. CALLER SCREEN & CHEST ANIMATION
+       ========================================================================== */
+    .caller-layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 20px;
+      width: 100%;
+    }
+
+    @media (max-width: 800px) {
+      .caller-layout { grid-template-columns: 1fr; }
+    }
+
+    .display-stage {
+      background: var(--mc-dark-stone);
+      padding: 30px;
+      border: 6px solid #000;
+      box-shadow: inset -6px -6px 0px #222, inset 6px 6px 0px #999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      min-height: 440px;
+      justify-content: space-between;
+    }
+
+    .chest-container {
+      width: 110px;
+      height: 110px;
+      position: relative;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+
+    .chest {
+      width: 100%;
+      height: 100%;
+      background-color: var(--mc-wood);
+      border: 6px solid #000;
+      position: relative;
+      box-shadow: inset -6px -6px 0px var(--mc-wood-dark), inset 6px 6px 0px #d89b65;
+      transition: transform 0.2s;
+    }
+
+    .chest-latch {
+      width: 18px;
+      height: 26px;
+      background: #e67e22;
+      border: 3px solid #000;
+      position: absolute;
+      top: 35%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+    }
+
+    .chest-lid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      background-color: #b58252;
+      border-bottom: 4px solid #000;
+      transform-origin: top;
+      transition: transform 0.4s ease-in-out;
+      z-index: 2;
+    }
+
+    .chest.open .chest-lid {
+      transform: rotateX(-110deg);
+    }
+
+    .particle-field {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: var(--mc-yellow);
+      border: 2px solid #000;
+      opacity: 0;
+    }
+
+    @keyframes sparkle {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+    }
+
+    .item-display {
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    .item-display.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .item-img-large {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      filter: drop-shadow(4px 4px 0px #000);
+      margin-bottom: 12px;
+    }
+
+    .item-title {
+      font-size: 1.5rem;
+      color: var(--mc-yellow);
+      text-shadow: 3px 3px 0px #000;
+      margin-bottom: 5px;
+    }
+
+    .item-category {
+      font-size: 0.65rem;
+      color: #aaa;
+      background: rgba(0,0,0,0.5);
+      padding: 4px 8px;
+      border: 2px solid #444;
+      text-transform: uppercase;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    .btn-draw {
+      grid-column: span 2;
+      padding: 16px;
+      font-size: 1.1rem;
+    }
+
+    .sidebar {
+      background: var(--mc-dark-stone);
+      padding: 20px;
+      border: 6px solid #000;
+      box-shadow: inset -6px -6px 0px #222, inset 6px 6px 0px #999;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-height: 520px;
+    }
+
+    .progress-box { text-align: left; }
+
+    .progress-info {
+      font-size: 0.7rem;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 20px;
+      background: #222;
+      border: 3px solid #000;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--mc-emerald);
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    .history-title {
+      font-size: 0.8rem;
+      text-align: left;
+      border-bottom: 2px solid #444;
+      padding-bottom: 6px;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      padding-right: 5px;
+      flex-grow: 1;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(0,0,0,0.4);
+      padding: 8px;
+      border: 2px solid #333;
+      font-size: 0.65rem;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .history-item img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(-20px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* ==========================================================================
+       4. MODALS & AUXILIARY SCREENS
+       ========================================================================== */
+    .modal-box {
+      background: var(--mc-dark-stone);
+      padding: 30px;
+      border: 6px solid #000;
+      box-shadow: inset -6px -6px 0px #222, inset 6px 6px 0px #999;
+      max-width: 600px;
+      width: 100%;
+      text-align: left;
+    }
+
+    .modal-box h2 {
+      font-size: 1.4rem;
+      color: var(--mc-yellow);
+      text-shadow: 2px 2px 0px #000;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      font-size: 0.75rem;
+    }
+
+    .setting-row select, .setting-row input {
+      font-family: var(--font-pixel);
+      padding: 6px;
+      background: #222;
+      color: #fff;
+      border: 2px solid #000;
+    }
+
+    .rules-list {
+      font-size: 0.75rem;
+      line-height: 1.8;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .rules-list li {
+      list-style-type: none;
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .rules-list li::before {
+      content: '■';
+      color: var(--mc-emerald);
+      position: absolute;
+      left: 0;
+    }
+
+    .winner-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.85);
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .winner-overlay.active { display: flex; }
+
+    .winner-title {
+      font-size: 2.5rem;
+      color: var(--mc-yellow);
+      animation: bounce 0.6s infinite alternate;
+      text-shadow: 4px 4px 0px #000;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-15px); }
+    }
+
+    #confetti-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       5. PRINTABLE CARDS STYLESHEET
+       ========================================================================== */
+    .cards-container {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .bingo-card {
+      width: 18cm;
+      height: 24cm;
+      background: var(--mc-stone);
+      border: 10px solid var(--mc-wood-dark);
+      padding: 15px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      page-break-after: always;
+      color: #fff;
+    }
+
+    .card-header {
+      background: var(--mc-green);
+      border: 4px solid #000;
+      padding: 12px;
+      text-align: center;
+      box-shadow: inset 0 -6px 0 var(--mc-dark-green);
+    }
+
+    .card-header h2 {
+      font-size: 1.5rem;
+      color: #fff;
+      text-shadow: 2px 2px 0px #000;
+    }
+
+    .card-header p {
+      font-size: 0.6rem;
+      margin-top: 4px;
+      color: var(--mc-yellow);
+    }
+
+    .bingo-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 8px;
+      flex-grow: 1;
+      margin-top: 15px;
+    }
+
+    .bingo-cell {
+      background: var(--mc-dark-stone);
+      border: 4px solid #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      text-align: center;
+      box-shadow: inset -2px -2px 0 #222, inset 2px 2px 0 #888;
+    }
+
+    .cell-img {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+      margin-bottom: 6px;
+      filter: drop-shadow(2px 2px 0px #000);
+    }
+
+    .cell-name {
+      font-size: 0.55rem;
+      color: #fff;
+      line-height: 1.2;
+      text-shadow: 1px 1px 0px #000;
+    }
+
+    @media print {
+      body { background: none !important; color: #000 !important; }
+      .screen, .winner-overlay { display: none !important; }
+      #print-screen { display: block !important; }
+      .cards-container { gap: 0; }
+      .bingo-card { margin: 0 auto; border-color: #000; box-shadow: none; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HOME SCREEN -->
+  <section id="home-screen" class="screen active">
+    <div class="title-banner pixel-box">
+      <h1>MINECRAFT BINGO</h1>
+      <p>Can you get BINGO before everyone else?</p>
+    </div>
+
+    <div class="menu-buttons">
+      <button class="pixel-btn btn-emerald" onclick="app.startGame()">▶ Start Game</button>
+      <button class="pixel-btn" onclick="app.showScreen('print-screen')">🖨 Print Bingo Cards</button>
+      <button class="pixel-btn" onclick="app.showScreen('settings-screen')">⚙ Settings</button>
+      <button class="pixel-btn" onclick="app.showScreen('rules-screen')">📖 Rules</button>
+    </div>
+  </section>
+
+  <!-- CALLER SCREEN -->
+  <section id="caller-screen" class="screen">
+    <div class="caller-layout">
+      <div class="display-stage pixel-box">
+        <div style="font-size: 0.8rem; color: var(--mc-yellow); text-shadow: 2px 2px 0 #000;">
+          MINECRAFT BINGO CALLER
+        </div>
+
+        <div class="chest-container" onclick="app.drawNextItem()">
+          <div class="chest" id="chest-element">
+            <div class="chest-lid"></div>
+            <div class="chest-latch"></div>
+          </div>
+          <div class="particle-field" id="particle-field"></div>
+        </div>
+
+        <div class="item-display" id="item-display">
+          <img id="item-icon" class="item-img-large pixelated" src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.20.1/items/chest.png" alt="Minecraft Item">
+          <div class="item-title" id="item-name">READY?</div>
+          <div class="item-category" id="item-category">Press Draw</div>
+        </div>
+
+        <div class="controls-grid">
+          <button class="pixel-btn btn-emerald btn-draw" id="btn-draw" onclick="app.drawNextItem()">Draw Next Item</button>
+          <button class="pixel-btn" id="btn-auto" onclick="app.toggleAutoDraw()">Auto Draw</button>
+          <button class="pixel-btn btn-danger" onclick="app.triggerBingo()">🎉 BINGO!</button>
+          <button class="pixel-btn" onclick="app.resetGame()">Reset Game</button>
+          <button class="pixel-btn" onclick="app.toggleFullscreen()">Fullscreen</button>
+        </div>
+      </div>
+
+      <div class="sidebar pixel-box">
+        <div class="progress-box">
+          <div class="progress-info">
+            <span>Remaining:</span>
+            <span id="remaining-count">64 / 64</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="history-title">DRAW HISTORY</div>
+        <div class="history-list" id="history-list"></div>
+
+        <button class="pixel-btn" style="margin-top: auto; font-size: 0.65rem;" onclick="app.showScreen('home-screen')">Exit to Menu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS SCREEN -->
+  <section id="settings-screen" class="screen">
+    <div class="modal-box pixel-box">
+      <h2>⚙ SETTINGS</h2>
+
+      <div class="setting-row">
+        <label for="set-auto-interval">Auto Draw Speed:</label>
+        <select id="set-auto-interval" onchange="app.saveSettings()">
+          <option value="3000">Fast (3s)</option>
+          <option value="5000" selected>Normal (5s)</option>
+          <option value="8000">Slow (8s)</option>
+          <option value="10000">Relaxed (10s)</option>
+        </select>
+      </div>
+
+      <div class="setting-row">
+        <label for="set-voice">Voice Announcer:</label>
+        <input type="checkbox" id="set-voice" checked onchange="app.saveSettings()">
+      </div>
+
+      <div class="setting-row">
+        <label for="set-sound">Sound Effects:</label>
+        <input type="checkbox" id="set-sound" checked onchange="app.saveSettings()">
+      </div>
+
+      <div class="setting-row">
+        <label for="set-anim-speed">Animation Speed:</label>
+        <select id="set-anim-speed" onchange="app.saveSettings()">
+          <option value="1">Normal</option>
+          <option value="0.5">Fast</option>
+          <option value="1.5">Slow</option>
+        </select>
+      </div>
+
+      <div style="text-align: center; margin-top: 25px;">
+        <button class="pixel-btn btn-emerald" onclick="app.showScreen('home-screen')">Back to Main Menu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RULES SCREEN -->
+  <section id="rules-screen" class="screen">
+    <div class="modal-box pixel-box">
+      <h2>📖 HOW TO PLAY</h2>
+      <ul class="rules-list">
+        <li>Each player receives one physical Bingo card.</li>
+        <li>When an item appears on the TV screen, search for it on your card.</li>
+        <li>If you have the item, mark it off with a marker or token!</li>
+        <li>The first player to complete any full horizontal, vertical, or diagonal line shouts: <strong>BINGO!</strong></li>
+        <li>The winner receives a small Minecraft prize!</li>
+      </ul>
+      <div style="text-align: center; margin-top: 25px;">
+        <button class="pixel-btn btn-emerald" onclick="app.showScreen('home-screen')">Got It!</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRINTABLE CARDS SCREEN -->
+  <section id="print-screen" class="screen">
+    <div class="no-print" style="margin-bottom: 20px; display: flex; gap: 10px;">
+      <button class="pixel-btn btn-emerald" onclick="window.print()">🖨 Print Now</button>
+      <button class="pixel-btn" onclick="app.regenerateCards()">🔄 Regenerate Cards</button>
+      <button class="pixel-btn" onclick="app.showScreen('home-screen')">Back to Menu</button>
+    </div>
+
+    <div class="cards-container" id="printable-cards-container"></div>
+  </section>
+
+  <!-- WINNER OVERLAY -->
+  <div id="winner-overlay" class="winner-overlay">
+    <canvas id="confetti-canvas"></canvas>
+    <div class="winner-title">🎉 BINGO! 🎉</div>
+    <div style="font-size: 1rem; color: #fff; text-shadow: 2px 2px 0 #000;">WE HAVE A WINNER!</div>
+    <div style="display: flex; gap: 15px; z-index: 101; margin-top: 20px;">
+      <button class="pixel-btn btn-emerald" onclick="app.closeWinnerOverlay(); app.resetGame();">Play Again</button>
+      <button class="pixel-btn" onclick="app.closeWinnerOverlay()">Continue Calling</button>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       1. ITEM DATABASE (Official Minecraft Sprite Textures)
+       ========================================================================== */
+    const BASE_URL = "https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.20.1/";
+
+    const MINECRAFT_ITEMS = [
+      { name: "Diamond", img: BASE_URL + "items/diamond.png", category: "Ores & Gems" },
+      { name: "Emerald", img: BASE_URL + "items/emerald.png", category: "Ores & Gems" },
+      { name: "Coal", img: BASE_URL + "items/coal.png", category: "Ores & Gems" },
+      { name: "Iron Ingot", img: BASE_URL + "items/iron_ingot.png", category: "Materials" },
+      { name: "Gold Ingot", img: BASE_URL + "items/gold_ingot.png", category: "Materials" },
+      { name: "Redstone", img: BASE_URL + "items/redstone.png", category: "Mechanics" },
+      { name: "Lapis Lazuli", img: BASE_URL + "items/lapis_lazuli.png", category: "Ores & Gems" },
+      { name: "Copper Ingot", img: BASE_URL + "items/copper_ingot.png", category: "Materials" },
+      { name: "Torch", img: BASE_URL + "blocks/torch.png", category: "Utility" },
+      { name: "Chest", img: BASE_URL + "items/chest.png", category: "Utility" },
+      { name: "Crafting Table", img: BASE_URL + "blocks/crafting_table_front.png", category: "Utility" },
+      { name: "Furnace", img: BASE_URL + "blocks/furnace_front_on.png", category: "Utility" },
+      { name: "Cake", img: BASE_URL + "items/cake.png", category: "Food" },
+      { name: "Cookie", img: BASE_URL + "items/cookie.png", category: "Food" },
+      { name: "Bread", img: BASE_URL + "items/bread.png", category: "Food" },
+      { name: "Apple", img: BASE_URL + "items/apple.png", category: "Food" },
+      { name: "Golden Apple", img: BASE_URL + "items/golden_apple.png", category: "Food" },
+      { name: "Bee Egg", img: BASE_URL + "items/bee_spawn_egg.png", category: "Mobs" },
+      { name: "Wolf Egg", img: BASE_URL + "items/wolf_spawn_egg.png", category: "Mobs" },
+      { name: "Cat Egg", img: BASE_URL + "items/cat_spawn_egg.png", category: "Mobs" },
+      { name: "Pig Egg", img: BASE_URL + "items/pig_spawn_egg.png", category: "Mobs" },
+      { name: "Cow Egg", img: BASE_URL + "items/cow_spawn_egg.png", category: "Mobs" },
+      { name: "Chicken Egg", img: BASE_URL + "items/chicken_spawn_egg.png", category: "Mobs" },
+      { name: "Horse Egg", img: BASE_URL + "items/horse_spawn_egg.png", category: "Mobs" },
+      { name: "Villager Egg", img: BASE_URL + "items/villager_spawn_egg.png", category: "Mobs" },
+      { name: "Iron Golem Egg", img: BASE_URL + "items/iron_golem_spawn_egg.png", category: "Mobs" },
+      { name: "Zombie Egg", img: BASE_URL + "items/zombie_spawn_egg.png", category: "Monsters" },
+      { name: "Skeleton Egg", img: BASE_URL + "items/skeleton_spawn_egg.png", category: "Monsters" },
+      { name: "Spider Egg", img: BASE_URL + "items/spider_spawn_egg.png", category: "Monsters" },
+      { name: "Creeper Egg", img: BASE_URL + "items/creeper_spawn_egg.png", category: "Monsters" },
+      { name: "Enderman Egg", img: BASE_URL + "items/enderman_spawn_egg.png", category: "Monsters" },
+      { name: "Slime Ball", img: BASE_URL + "items/slimeball.png", category: "Monsters" },
+      { name: "TNT", img: BASE_URL + "blocks/tnt_side.png", category: "Blocks" },
+      { name: "Oak Boat", img: BASE_URL + "items/oak_boat.png", category: "Transport" },
+      { name: "Minecart", img: BASE_URL + "items/minecart.png", category: "Transport" },
+      { name: "Compass", img: BASE_URL + "items/compass_16.png", category: "Tools" },
+      { name: "Clock", img: BASE_URL + "items/clock_00.png", category: "Tools" },
+      { name: "Shield", img: BASE_URL + "items/shield.png", category: "Combat" },
+      { name: "Bow", img: BASE_URL + "items/bow.png", category: "Combat" },
+      { name: "Arrow", img: BASE_URL + "items/arrow.png", category: "Combat" },
+      { name: "Diamond Sword", img: BASE_URL + "items/diamond_sword.png", category: "Combat" },
+      { name: "Diamond Pickaxe", img: BASE_URL + "items/diamond_pickaxe.png", category: "Tools" },
+      { name: "Water Bucket", img: BASE_URL + "items/water_bucket.png", category: "Tools" },
+      { name: "Lava Bucket", img: BASE_URL + "items/lava_bucket.png", category: "Tools" },
+      { name: "Campfire", img: BASE_URL + "items/campfire.png", category: "Utility" },
+      { name: "Lantern", img: BASE_URL + "items/lantern.png", category: "Utility" },
+      { name: "Red Bed", img: BASE_URL + "items/red_bed.png", category: "Utility" },
+      { name: "Bookshelf", img: BASE_URL + "blocks/bookshelf.png", category: "Blocks" },
+      { name: "Enchanting Table", img: BASE_URL + "blocks/enchanting_table_top.png", category: "Utility" },
+      { name: "Beacon", img: BASE_URL + "blocks/beacon.png", category: "Special" },
+      { name: "Nether Star", img: BASE_URL + "items/nether_star.png", category: "Special" },
+      { name: "Dragon Egg", img: BASE_URL + "blocks/dragon_egg.png", category: "Special" },
+      { name: "Eye of Ender", img: BASE_URL + "items/ender_eye.png", category: "Special" },
+      { name: "Totem of Undying", img: BASE_URL + "items/totem_of_undying.png", category: "Special" },
+      { name: "Honey Bottle", img: BASE_URL + "items/honey_bottle.png", category: "Food" },
+      { name: "Bee Nest", img: BASE_URL + "blocks/bee_nest_front.png", category: "Nature" },
+      { name: "Red Mushroom", img: BASE_URL + "blocks/red_mushroom.png", category: "Nature" },
+      { name: "Glow Berries", img: BASE_URL + "items/glow_berries.png", category: "Food" },
+      { name: "Axolotl Bucket", img: BASE_URL + "items/axolotl_bucket.png", category: "Mobs" },
+      { name: "Goat Horn", img: BASE_URL + "items/goat_horn.png", category: "Mobs" },
+      { name: "Camel Egg", img: BASE_URL + "items/camel_spawn_egg.png", category: "Mobs" },
+      { name: "Frog Egg", img: BASE_URL + "items/frog_spawn_egg.png", category: "Mobs" },
+      { name: "Sniffer Egg", img: BASE_URL + "items/sniffer_spawn_egg.png", category: "Mobs" },
+      { name: "Cherry Sapling", img: BASE_URL + "blocks/cherry_sapling.png", category: "Nature" }
+    ];
+
+    /* ==========================================================================
+       2. WEB AUDIO SYNTHESIZER
+       ========================================================================== */
+    class SoundEngine {
+      constructor() { this.ctx = null; }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+      }
+
+      playClick() {
+        if (!app.settings.sound || !this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.05);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.05);
+      }
+
+      playChestOpen() {
+        if (!app.settings.sound || !this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(300, this.ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.15);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.15);
+      }
+
+      playXpDing() {
+        if (!app.settings.sound || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(850, now);
+        osc.frequency.setValueAtTime(1250, now + 0.08);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(now + 0.35);
+      }
+
+      playVictory() {
+        if (!app.settings.sound || !this.ctx) return;
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, index) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const startTime = this.ctx.currentTime + (index * 0.12);
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, startTime);
+          gain.gain.setValueAtTime(0.2, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.3);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(startTime); osc.stop(startTime + 0.3);
+        });
+      }
+    }
+
+    /* ==========================================================================
+       3. MAIN APPLICATION ENGINE
+       ========================================================================== */
+    class BingoApp {
+      constructor() {
+        this.items = [...MINECRAFT_ITEMS];
+        this.pool = [];
+        this.history = [];
+        this.autoTimer = null;
+        this.isDrawing = false;
+        this.sound = new SoundEngine();
+
+        this.settings = {
+          autoInterval: 5000,
+          voice: true,
+          sound: true,
+          animSpeed: 1
+        };
+
+        this.loadSettings();
+      }
+
+      init() {
+        this.renderPrintableCards();
+        document.addEventListener('click', (e) => {
+          if (e.target.closest('button') || e.target.closest('.pixel-btn')) {
+            this.sound.init();
+            this.sound.playClick();
+          }
+        });
+      }
+
+      showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const target = document.getElementById(screenId);
+        if (target) target.classList.add('active');
+      }
+
+      startGame() {
+        this.resetGame();
+        this.showScreen('caller-screen');
+      }
+
+      resetGame() {
+        this.stopAutoDraw();
+        this.pool = [...MINECRAFT_ITEMS];
+        this.history = [];
+        this.updateUI();
+        
+        const display = document.getElementById('item-display');
+        display.classList.remove('visible');
+        document.getElementById('item-name').innerText = "READY?";
+        document.getElementById('item-icon').src = BASE_URL + "items/chest.png";
+        document.getElementById('item-category').innerText = "Press Draw";
+        document.getElementById('history-list').innerHTML = "";
+      }
+
+      drawNextItem() {
+        if (this.isDrawing) return;
+        if (this.pool.length === 0) {
+          alert("All Minecraft items have been drawn!");
+          this.stopAutoDraw();
+          return;
+        }
+
+        this.sound.init();
+        this.isDrawing = true;
+        const btnDraw = document.getElementById('btn-draw');
+        btnDraw.disabled = true;
+
+        const chest = document.getElementById('chest-element');
+        chest.classList.add('open');
+        this.sound.playChestOpen();
+        this.createParticles();
+
+        const index = Math.floor(Math.random() * this.pool.length);
+        const selectedItem = this.pool.splice(index, 1)[0];
+        this.history.unshift(selectedItem);
+
+        const display = document.getElementById('item-display');
+        display.classList.remove('visible');
+
+        const delay = 400 * parseFloat(this.settings.animSpeed);
+        setTimeout(() => {
+          document.getElementById('item-icon').src = selectedItem.img;
+          document.getElementById('item-name').innerText = selectedItem.name;
+          document.getElementById('item-category').innerText = selectedItem.category;
+
+          display.classList.add('visible');
+          this.sound.playXpDing();
+
+          if (this.settings.voice) {
+            this.speak(selectedItem.name);
+          }
+
+          this.addHistoryItemUI(selectedItem);
+          this.updateUI();
+
+          setTimeout(() => {
+            chest.classList.remove('open');
+            this.isDrawing = false;
+            btnDraw.disabled = false;
+          }, 600);
+
+        }, delay);
+      }
+
+      toggleAutoDraw() {
+        if (this.autoTimer) {
+          this.stopAutoDraw();
+        } else {
+          this.sound.init();
+          document.getElementById('btn-auto').innerText = "Pause";
+          document.getElementById('btn-auto').classList.add('btn-emerald');
+          this.drawNextItem();
+          this.autoTimer = setInterval(() => {
+            this.drawNextItem();
+          }, parseInt(this.settings.autoInterval));
+        }
+      }
+
+      stopAutoDraw() {
+        if (this.autoTimer) {
+          clearInterval(this.autoTimer);
+          this.autoTimer = null;
+        }
+        const btn = document.getElementById('btn-auto');
+        if (btn) {
+          btn.innerText = "Auto Draw";
+          btn.classList.remove('btn-emerald');
+        }
+      }
+
+      speak(text) {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.rate = 0.9;
+          window.speechSynthesis.speak(utterance);
+        }
+      }
+
+      createParticles() {
+        const field = document.getElementById('particle-field');
+        field.innerHTML = '';
+        for (let i = 0; i < 12; i++) {
+          const p = document.createElement('div');
+          p.className = 'particle';
+          const angle = Math.random() * Math.PI * 2;
+          const dist = 40 + Math.random() * 50;
+          const dx = Math.cos(angle) * dist + 'px';
+          const dy = Math.sin(angle) * dist + 'px';
+          p.style.setProperty('--dx', dx);
+          p.style.setProperty('--dy', dy);
+          p.style.left = '50%';
+          p.style.top = '50%';
+          p.style.animation = `sparkle 0.6s ease-out forwards`;
+          field.appendChild(p);
+        }
+      }
+
+      updateUI() {
+        const remaining = this.pool.length;
+        const total = MINECRAFT_ITEMS.length;
+        document.getElementById('remaining-count').innerText = `${remaining} / ${total}`;
+        const percentage = ((total - remaining) / total) * 100;
+        document.getElementById('progress-bar').style.width = `${percentage}%`;
+      }
+
+      addHistoryItemUI(item) {
+        const list = document.getElementById('history-list');
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `
+          <img class="pixelated" src="${item.img}" alt="${item.name}">
+          <div style="display:flex; flex-direction:column;">
+            <span style="color:var(--mc-yellow);">${item.name}</span>
+            <span style="color:#aaa; font-size:0.5rem;">${item.category}</span>
+          </div>
+        `;
+        list.insertBefore(div, list.firstChild);
+      }
+
+      triggerBingo() {
+        this.stopAutoDraw();
+        this.sound.init();
+        this.sound.playVictory();
+        document.getElementById('winner-overlay').classList.add('active');
+        this.startConfetti();
+      }
+
+      closeWinnerOverlay() {
+        document.getElementById('winner-overlay').classList.remove('active');
+      }
+
+      toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          if (document.exitFullscreen) document.exitFullscreen();
+        }
+      }
+
+      /* ==========================================================================
+         4. PRINTABLE CARDS GENERATOR
+         ========================================================================== */
+      renderPrintableCards() {
+        const container = document.getElementById('printable-cards-container');
+        container.innerHTML = '';
+
+        const cardsData = this.generateThreeUniqueCards();
+
+        cardsData.forEach((cardItems, cardIndex) => {
+          const cardEl = document.createElement('div');
+          cardEl.className = 'bingo-card';
+
+          let gridHtml = '';
+          cardItems.forEach(item => {
+            gridHtml += `
+              <div class="bingo-cell">
+                <img class="cell-img pixelated" src="${item.img}" alt="${item.name}">
+                <div class="cell-name">${item.name}</div>
+              </div>
+            `;
+          });
+
+          cardEl.innerHTML = `
+            <div class="card-header">
+              <h2>MINECRAFT BINGO</h2>
+              <p>PLAYER CARD #${cardIndex + 1}</p>
+            </div>
+            <div class="bingo-grid">
+              ${gridHtml}
+            </div>
+          `;
+          container.appendChild(cardEl);
+        });
+      }
+
+      generateThreeUniqueCards() {
+        const cards = [];
+        const usedSignatures = new Set();
+
+        for (let i = 0; i < 3; i++) {
+          let cardItems;
+          let signature;
+          do {
+            const shuffled = [...MINECRAFT_ITEMS].sort(() => 0.5 - Math.random());
+            cardItems = shuffled.slice(0, 16);
+            signature = cardItems.map(item => item.name).sort().join('|');
+          } while (usedSignatures.has(signature));
+
+          usedSignatures.add(signature);
+          cards.push(cardItems);
+        }
+
+        return cards;
+      }
+
+      regenerateCards() {
+        this.renderPrintableCards();
+        this.sound.playClick();
+      }
+
+      saveSettings() {
+        this.settings.autoInterval = document.getElementById('set-auto-interval').value;
+        this.settings.voice = document.getElementById('set-voice').checked;
+        this.settings.sound = document.getElementById('set-sound').checked;
+        this.settings.animSpeed = document.getElementById('set-anim-speed').value;
+        localStorage.setItem('mc_bingo_settings', JSON.stringify(this.settings));
+      }
+
+      loadSettings() {
+        const saved = localStorage.getItem('mc_bingo_settings');
+        if (saved) {
+          try { this.settings = { ...this.settings, ...JSON.parse(saved) }; } catch (e) {}
+        }
+        document.getElementById('set-auto-interval').value = this.settings.autoInterval;
+        document.getElementById('set-voice').checked = this.settings.voice;
+        document.getElementById('set-sound').checked = this.settings.sound;
+        document.getElementById('set-anim-speed').value = this.settings.animSpeed;
+      }
+
+      startConfetti() {
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const pieces = Array.from({ length: 80 }).map(() => ({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          size: Math.random() * 10 + 5,
+          color: ['#17dd62', '#f1c40f', '#e74c3c', '#3498db', '#9b59b6'][Math.floor(Math.random() * 5)],
+          speed: Math.random() * 3 + 2
+        }));
+
+        const animate = () => {
+          if (!document.getElementById('winner-overlay').classList.contains('active')) return;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          pieces.forEach(p => {
+            p.y += p.speed;
+            if (p.y > canvas.height) p.y = -10;
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+          });
+          requestAnimationFrame(animate);
+        };
+        animate();
+      }
+    }
+
+    const app = new BingoApp();
+    window.addEventListener('DOMContentLoaded', () => app.init());
+  </script>
+</body>
+</html>
