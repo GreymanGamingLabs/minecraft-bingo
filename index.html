@@ -448,46 +448,52 @@
       to { transform: translateY(-15px); }
     }
 
+    /* ==========================================================================
+       5. PRINTABLE CARDS - INK SAVER (WHITE BACKGROUND)
+       ========================================================================== */
     .cards-container {
       display: flex;
       flex-direction: column;
       gap: 40px;
       align-items: center;
       width: 100%;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
     }
 
     .bingo-card {
       width: 18cm;
       height: 24cm;
-      background: var(--mc-stone);
-      border: 10px solid var(--mc-wood-dark);
+      background: #ffffff;
+      border: 6px solid #000000;
       padding: 15px;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       page-break-after: always;
-      color: #fff;
+      color: #000000;
     }
 
     .card-header {
-      background: var(--mc-green);
-      border: 4px solid #000;
-      padding: 12px;
+      background: #ffffff;
+      border: 4px solid #000000;
+      padding: 10px;
       text-align: center;
-      box-shadow: inset 0 -6px 0 var(--mc-dark-green);
     }
 
     .card-header h2 {
-      font-size: 1.5rem;
-      color: #fff;
-      text-shadow: 2px 2px 0px #000;
+      font-size: 1.6rem;
+      color: #000000;
+      text-shadow: none;
     }
 
     .card-header p {
-      font-size: 0.6rem;
+      font-size: 0.7rem;
       margin-top: 4px;
-      color: var(--mc-yellow);
+      color: #444444;
+      font-weight: bold;
     }
 
     .bingo-grid {
@@ -500,38 +506,39 @@
     }
 
     .bingo-cell {
-      background: var(--mc-dark-stone);
-      border: 4px solid #000;
+      background: #ffffff;
+      border: 3px solid #000000;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 6px;
       text-align: center;
-      box-shadow: inset -2px -2px 0 #222, inset 2px 2px 0 #888;
     }
 
     .cell-img {
-      width: 48px;
-      height: 48px;
+      width: 52px;
+      height: 52px;
       object-fit: contain;
       margin-bottom: 6px;
-      filter: drop-shadow(2px 2px 0px #000);
     }
 
     .cell-name {
-      font-size: 0.55rem;
-      color: #fff;
+      font-size: 0.6rem;
+      color: #000000;
       line-height: 1.2;
-      text-shadow: 1px 1px 0px #000;
+      font-weight: bold;
     }
 
     @media print {
-      body { background: none !important; color: #000 !important; }
+      body { 
+        background: #ffffff !important; 
+        color: #000000 !important; 
+      }
       .screen, .winner-overlay { display: none !important; }
-      #print-screen { display: block !important; }
-      .cards-container { gap: 0; }
-      .bingo-card { margin: 0 auto; border-color: #000; box-shadow: none; }
+      #print-screen { display: block !important; width: 100% !important; margin: 0 !important; }
+      .cards-container { gap: 0; padding: 0; background: #ffffff !important; }
+      .bingo-card { margin: 0 auto; border-color: #000; box-shadow: none; page-break-after: always; }
       .no-print { display: none !important; }
     }
   </style>
@@ -569,7 +576,7 @@
         </div>
 
         <div class="item-display" id="item-display">
-          <img id="item-icon" class="item-img-large pixelated" src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.20.1/items/chest.png" alt="Minecraft Item">
+          <img id="item-icon" class="item-img-large pixelated" src="https://mc-heads.net/head/MHF_Chest/64" alt="Chest" onerror="app.handleImgError(this)">
           <div class="item-title" id="item-name">READY?</div>
           <div class="item-category" id="item-category">Press Draw</div>
         </div>
@@ -650,7 +657,7 @@
     </div>
   </section>
 
-  <!-- PRINTABLE CARDS SCREEN -->
+  <!-- PRINTABLE CARDS SCREEN (INK SAVER WHITE BG) -->
   <section id="print-screen" class="screen">
     <div class="no-print" style="margin-bottom: 20px; display: flex; gap: 10px;">
       <button class="pixel-btn btn-emerald" onclick="window.print()">🖨 Print Now</button>
@@ -673,57 +680,35 @@
 
   <script>
     /* ==========================================================================
-       1. MINECRAFT ITEM DATABASE (Using Reliable Static Assets - No Spawn Eggs)
+       1. MINECRAFT ITEM DATABASE (Tested high-reliability Wikimedia / MC CDN URLs)
        ========================================================================== */
-    const BASE_ASSET_URL = "https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.20.1/items/";
+    const FALLBACK_SVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23555'/><rect x='2' y='2' width='12' height='12' fill='%23888'/><text x='8' y='12' font-size='10' text-anchor='middle' fill='%23fff' font-family='sans-serif'>⛏</text></svg>";
 
     const MINECRAFT_ITEMS = [
-      { name: "Diamond", img: BASE_ASSET_URL + "diamond.png", category: "Ores & Gems" },
-      { name: "Emerald", img: BASE_ASSET_URL + "emerald.png", category: "Ores & Gems" },
-      { name: "Coal", img: BASE_ASSET_URL + "coal.png", category: "Ores & Gems" },
-      { name: "Iron Ingot", img: BASE_ASSET_URL + "iron_ingot.png", category: "Materials" },
-      { name: "Gold Ingot", img: BASE_ASSET_URL + "gold_ingot.png", category: "Materials" },
-      { name: "Redstone", img: BASE_ASSET_URL + "redstone.png", category: "Mechanics" },
-      { name: "Lapis Lazuli", img: BASE_ASSET_URL + "lapis_lazuli.png", category: "Ores & Gems" },
-      { name: "Copper Ingot", img: BASE_ASSET_URL + "copper_ingot.png", category: "Materials" },
-      { name: "Torch", img: BASE_ASSET_URL + "torch.png", category: "Utility" },
-      { name: "Chest", img: BASE_ASSET_URL + "chest.png", category: "Utility" },
-      { name: "Crafting Table", img: BASE_ASSET_URL + "crafting_table.png", category: "Utility" },
-      { name: "Furnace", img: BASE_ASSET_URL + "furnace.png", category: "Utility" },
-      { name: "Cake", img: BASE_ASSET_URL + "cake.png", category: "Food" },
-      { name: "Cookie", img: BASE_ASSET_URL + "cookie.png", category: "Food" },
-      { name: "Bread", img: BASE_ASSET_URL + "bread.png", category: "Food" },
-      { name: "Apple", img: BASE_ASSET_URL + "apple.png", category: "Food" },
-      { name: "Golden Apple", img: BASE_ASSET_URL + "golden_apple.png", category: "Food" },
-      { name: "Cooked Beef", img: BASE_ASSET_URL + "cooked_beef.png", category: "Food" },
-      { name: "TNT", img: BASE_ASSET_URL + "tnt.png", category: "Blocks" },
-      { name: "Oak Boat", img: BASE_ASSET_URL + "oak_boat.png", category: "Transport" },
-      { name: "Minecart", img: BASE_ASSET_URL + "minecart.png", category: "Transport" },
-      { name: "Compass", img: BASE_ASSET_URL + "compass.png", category: "Tools" },
-      { name: "Clock", img: BASE_ASSET_URL + "clock.png", category: "Tools" },
-      { name: "Shield", img: BASE_ASSET_URL + "shield.png", category: "Combat" },
-      { name: "Bow", img: BASE_ASSET_URL + "bow.png", category: "Combat" },
-      { name: "Arrow", img: BASE_ASSET_URL + "arrow.png", category: "Combat" },
-      { name: "Diamond Sword", img: BASE_ASSET_URL + "diamond_sword.png", category: "Combat" },
-      { name: "Diamond Pickaxe", img: BASE_ASSET_URL + "diamond_pickaxe.png", category: "Tools" },
-      { name: "Water Bucket", img: BASE_ASSET_URL + "water_bucket.png", category: "Tools" },
-      { name: "Lava Bucket", img: BASE_ASSET_URL + "lava_bucket.png", category: "Tools" },
-      { name: "Campfire", img: BASE_ASSET_URL + "campfire.png", category: "Utility" },
-      { name: "Lantern", img: BASE_ASSET_URL + "lantern.png", category: "Utility" },
-      { name: "Red Bed", img: BASE_ASSET_URL + "red_bed.png", category: "Utility" },
-      { name: "Bookshelf", img: BASE_ASSET_URL + "bookshelf.png", category: "Blocks" },
-      { name: "Enchanting Table", img: BASE_ASSET_URL + "enchanting_table.png", category: "Utility" },
-      { name: "Beacon", img: BASE_ASSET_URL + "beacon.png", category: "Special" },
-      { name: "Nether Star", img: BASE_ASSET_URL + "nether_star.png", category: "Special" },
-      { name: "Oak Log", img: BASE_ASSET_URL + "oak_log.png", category: "Nature" },
-      { name: "Ender Pearl", img: BASE_ASSET_URL + "ender_pearl.png", category: "Special" },
-      { name: "Eye of Ender", img: BASE_ASSET_URL + "ender_eye.png", category: "Special" },
-      { name: "Totem of Undying", img: BASE_ASSET_URL + "totem_of_undying.png", category: "Special" },
-      { name: "Honey Bottle", img: BASE_ASSET_URL + "honey_bottle.png", category: "Food" },
-      { name: "Red Mushroom", img: BASE_ASSET_URL + "red_mushroom.png", category: "Nature" },
-      { name: "Glow Berries", img: BASE_ASSET_URL + "glow_berries.png", category: "Food" },
-      { name: "Feather", img: BASE_ASSET_URL + "feather.png", category: "Materials" },
-      { name: "Bone", img: BASE_ASSET_URL + "bone.png", category: "Materials" }
+      { name: "Diamond", img: "https://upload.wikimedia.org/wikipedia/commons/a/a8/Minecraft_Diamond.png", category: "Ores & Gems" },
+      { name: "Emerald", img: "https://upload.wikimedia.org/wikipedia/commons/2/26/Minecraft_Emerald.png", category: "Ores & Gems" },
+      { name: "Coal", img: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Minecraft_Coal.png", category: "Ores & Gems" },
+      { name: "Iron Ingot", img: "https://upload.wikimedia.org/wikipedia/commons/f/f4/Minecraft_Iron_Ingot.png", category: "Materials" },
+      { name: "Gold Ingot", img: "https://upload.wikimedia.org/wikipedia/commons/e/ea/Minecraft_Gold_Ingot.png", category: "Materials" },
+      { name: "Redstone", img: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Minecraft_Redstone_Dust.png", category: "Mechanics" },
+      { name: "Chest", img: "https://mc-heads.net/head/MHF_Chest/64", category: "Utility" },
+      { name: "Crafting Table", img: "https://mc-heads.net/head/MHF_OakLog/64", category: "Utility" },
+      { name: "Cake", img: "https://upload.wikimedia.org/wikipedia/commons/0/02/Minecraft_Cake.png", category: "Food" },
+      { name: "Apple", img: "https://upload.wikimedia.org/wikipedia/commons/a/af/Minecraft_Apple.png", category: "Food" },
+      { name: "Golden Apple", img: "https://upload.wikimedia.org/wikipedia/commons/0/0a/Minecraft_Golden_Apple.png", category: "Food" },
+      { name: "TNT", img: "https://mc-heads.net/head/MHF_TNT/64", category: "Blocks" },
+      { name: "Diamond Sword", img: "https://upload.wikimedia.org/wikipedia/commons/2/23/Minecraft_Diamond_Sword.png", category: "Combat" },
+      { name: "Diamond Pickaxe", img: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Minecraft_Diamond_Pickaxe.png", category: "Tools" },
+      { name: "Water Bucket", img: "https://upload.wikimedia.org/wikipedia/commons/7/7f/Minecraft_Water_Bucket.png", category: "Tools" },
+      { name: "Lava Bucket", img: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Minecraft_Lava_Bucket.png", category: "Tools" },
+      { name: "Red Bed", img: "https://upload.wikimedia.org/wikipedia/commons/c/c2/Minecraft_Bed.png", category: "Utility" },
+      { name: "Ender Pearl", img: "https://upload.wikimedia.org/wikipedia/commons/2/26/Minecraft_Ender_Pearl.png", category: "Special" },
+      { name: "Totem of Undying", img: "https://upload.wikimedia.org/wikipedia/commons/2/22/Minecraft_Totem.png", category: "Special" },
+      { name: "Feather", img: "https://upload.wikimedia.org/wikipedia/commons/b/b3/Minecraft_Feather.png", category: "Materials" },
+      { name: "Bone", img: "https://upload.wikimedia.org/wikipedia/commons/3/3b/Minecraft_Bone.png", category: "Materials" },
+      { name: "Cookie", img: "https://upload.wikimedia.org/wikipedia/commons/7/70/Minecraft_Cookie.png", category: "Food" },
+      { name: "Bread", img: "https://upload.wikimedia.org/wikipedia/commons/9/94/Minecraft_Bread.png", category: "Food" },
+      { name: "Book", img: "https://upload.wikimedia.org/wikipedia/commons/b/b6/Minecraft_Book.png", category: "Materials" }
     ];
 
     /* ==========================================================================
@@ -790,6 +775,11 @@
         this.renderPrintableCards();
       }
 
+      handleImgError(img) {
+        img.onerror = null;
+        img.src = FALLBACK_SVG;
+      }
+
       showScreen(screenId) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         const target = document.getElementById(screenId);
@@ -810,7 +800,7 @@
         const display = document.getElementById('item-display');
         display.classList.remove('visible');
         document.getElementById('item-name').innerText = "READY?";
-        document.getElementById('item-icon').src = BASE_ASSET_URL + "chest.png";
+        document.getElementById('item-icon').src = "https://mc-heads.net/head/MHF_Chest/64";
         document.getElementById('item-category').innerText = "Press Draw";
         document.getElementById('history-list').innerHTML = "";
       }
@@ -888,7 +878,7 @@
         const list = document.getElementById('history-list');
         const div = document.createElement('div');
         div.className = 'history-item';
-        div.innerHTML = `<img src="${item.img}" class="pixelated" alt="${item.name}"> <span>${item.name}</span>`;
+        div.innerHTML = `<img src="${item.img}" class="pixelated" alt="${item.name}" onerror="app.handleImgError(this)"> <span>${item.name}</span>`;
         list.prepend(div);
       }
 
@@ -935,7 +925,7 @@
           shuffled.forEach(item => {
             cardHTML += `
               <div class="bingo-cell">
-                <img src="${item.img}" class="cell-img pixelated" alt="${item.name}">
+                <img src="${item.img}" class="cell-img pixelated" alt="${item.name}" onerror="app.handleImgError(this)">
                 <div class="cell-name">${item.name}</div>
               </div>
             `;
