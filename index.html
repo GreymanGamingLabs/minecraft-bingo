@@ -576,7 +576,7 @@
         </div>
 
         <div class="item-display" id="item-display">
-          <img id="item-icon" class="item-img-large pixelated" src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/chest_front.png" alt="Chest" onerror="app.handleImgError(this)">
+          <img id="item-icon" class="item-img-large pixelated" src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/compass.png" alt="Compass" onerror="app.handleImgError(this)">
           <div class="item-title" id="item-name">READY?</div>
           <div class="item-category" id="item-category">Press Draw</div>
         </div>
@@ -692,7 +692,7 @@
       { name: "Iron Ingot", img: BASE_ITEM_URL + "iron_ingot.png", category: "Materials" },
       { name: "Gold Ingot", img: BASE_ITEM_URL + "gold_ingot.png", category: "Materials" },
       { name: "Redstone", img: BASE_ITEM_URL + "redstone.png", category: "Mechanics" },
-      { name: "Chest", img: BASE_BLOCK_URL + "chest_front.png", category: "Utility" },
+      { name: "Compass", img: BASE_ITEM_URL + "compass.png", category: "Tools" },
       { name: "Crafting Table", img: BASE_BLOCK_URL + "crafting_table_front.png", category: "Utility" },
       { name: "Cake", img: BASE_ITEM_URL + "cake.png", category: "Food" },
       { name: "Apple", img: BASE_ITEM_URL + "apple.png", category: "Food" },
@@ -702,7 +702,7 @@
       { name: "Diamond Pickaxe", img: BASE_ITEM_URL + "diamond_pickaxe.png", category: "Tools" },
       { name: "Water Bucket", img: BASE_ITEM_URL + "water_bucket.png", category: "Tools" },
       { name: "Lava Bucket", img: BASE_ITEM_URL + "lava_bucket.png", category: "Tools" },
-      { name: "Red Bed", img: BASE_ITEM_URL + "red_bed.png", category: "Utility" },
+      { name: "Clock", img: BASE_ITEM_URL + "clock.png", category: "Tools" },
       { name: "Ender Pearl", img: BASE_ITEM_URL + "ender_pearl.png", category: "Special" },
       { name: "Totem of Undying", img: BASE_ITEM_URL + "totem_of_undying.png", category: "Special" },
       { name: "Feather", img: BASE_ITEM_URL + "feather.png", category: "Materials" },
@@ -801,7 +801,7 @@
         const display = document.getElementById('item-display');
         display.classList.remove('visible');
         document.getElementById('item-name').innerText = "READY?";
-        document.getElementById('item-icon').src = BASE_BLOCK_URL + "chest_front.png";
+        document.getElementById('item-icon').src = BASE_ITEM_URL + "compass.png";
         document.getElementById('item-category').innerText = "Press Draw";
         document.getElementById('history-list').innerHTML = "";
       }
