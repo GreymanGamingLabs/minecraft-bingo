@@ -53,7 +53,6 @@
       overflow-x: hidden;
     }
 
-    /* Pixelated image rendering for genuine Minecraft crispness */
     img.pixelated {
       image-rendering: pixelated;
       image-rendering: -moz-crisp-edges;
@@ -237,29 +236,6 @@
 
     .chest.open .chest-lid {
       transform: rotateX(-110deg);
-    }
-
-    .particle-field {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-    }
-
-    .particle {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      background-color: var(--mc-yellow);
-      border: 2px solid #000;
-      opacity: 0;
-    }
-
-    @keyframes sparkle {
-      0% { transform: translate(0, 0) scale(1); opacity: 1; }
-      100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
     }
 
     .item-display {
@@ -472,16 +448,6 @@
       to { transform: translateY(-15px); }
     }
 
-    #confetti-canvas {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-    }
-
-    /* ==========================================================================
-       5. PRINTABLE CARDS STYLESHEET
-       ========================================================================== */
     .cards-container {
       display: flex;
       flex-direction: column;
@@ -546,8 +512,8 @@
     }
 
     .cell-img {
-      width: 54px;
-      height: 54px;
+      width: 48px;
+      height: 48px;
       object-fit: contain;
       margin-bottom: 6px;
       filter: drop-shadow(2px 2px 0px #000);
@@ -600,11 +566,10 @@
             <div class="chest-lid"></div>
             <div class="chest-latch"></div>
           </div>
-          <div class="particle-field" id="particle-field"></div>
         </div>
 
         <div class="item-display" id="item-display">
-          <img id="item-icon" class="item-img-large pixelated" src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/chest.png" alt="Minecraft Item">
+          <img id="item-icon" class="item-img-large pixelated" src="https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.20.1/items/chest.png" alt="Minecraft Item">
           <div class="item-title" id="item-name">READY?</div>
           <div class="item-category" id="item-category">Press Draw</div>
         </div>
@@ -622,7 +587,7 @@
         <div class="progress-box">
           <div class="progress-info">
             <span>Remaining:</span>
-            <span id="remaining-count">64 / 64</span>
+            <span id="remaining-count">0 / 0</span>
           </div>
           <div class="progress-bar-bg">
             <div class="progress-bar-fill" id="progress-bar"></div>
@@ -662,15 +627,6 @@
         <input type="checkbox" id="set-sound" checked onchange="app.saveSettings()">
       </div>
 
-      <div class="setting-row">
-        <label for="set-anim-speed">Animation Speed:</label>
-        <select id="set-anim-speed" onchange="app.saveSettings()">
-          <option value="1">Normal</option>
-          <option value="0.5">Fast</option>
-          <option value="1.5">Slow</option>
-        </select>
-      </div>
-
       <div style="text-align: center; margin-top: 25px;">
         <button class="pixel-btn btn-emerald" onclick="app.showScreen('home-screen')">Back to Main Menu</button>
       </div>
@@ -698,7 +654,7 @@
   <section id="print-screen" class="screen">
     <div class="no-print" style="margin-bottom: 20px; display: flex; gap: 10px;">
       <button class="pixel-btn btn-emerald" onclick="window.print()">🖨 Print Now</button>
-      <button class="pixel-btn" onclick="app.regenerateCards()">🔄 Regenerate Cards</button>
+      <button class="pixel-btn" onclick="app.renderPrintableCards()">🔄 Regenerate Cards</button>
       <button class="pixel-btn" onclick="app.showScreen('home-screen')">Back to Menu</button>
     </div>
 
@@ -707,7 +663,6 @@
 
   <!-- WINNER OVERLAY -->
   <div id="winner-overlay" class="winner-overlay">
-    <canvas id="confetti-canvas"></canvas>
     <div class="winner-title">🎉 BINGO! 🎉</div>
     <div style="font-size: 1rem; color: #fff; text-shadow: 2px 2px 0 #000;">WE HAVE A WINNER!</div>
     <div style="display: flex; gap: 15px; z-index: 101; margin-top: 20px;">
@@ -718,79 +673,61 @@
 
   <script>
     /* ==========================================================================
-       1. ITEM DATABASE (Official Minecraft Sprite Textures CDN)
+       1. MINECRAFT ITEM DATABASE (Using Reliable Static Assets - No Spawn Eggs)
        ========================================================================== */
-    const BASE_URL = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/";
+    const BASE_ASSET_URL = "https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.20.1/items/";
 
     const MINECRAFT_ITEMS = [
-      { name: "Diamond", img: BASE_URL + "item/diamond.png", category: "Ores & Gems" },
-      { name: "Emerald", img: BASE_URL + "item/emerald.png", category: "Ores & Gems" },
-      { name: "Coal", img: BASE_URL + "item/coal.png", category: "Ores & Gems" },
-      { name: "Iron Ingot", img: BASE_URL + "item/iron_ingot.png", category: "Materials" },
-      { name: "Gold Ingot", img: BASE_URL + "item/gold_ingot.png", category: "Materials" },
-      { name: "Redstone", img: BASE_URL + "item/redstone.png", category: "Mechanics" },
-      { name: "Lapis Lazuli", img: BASE_URL + "item/lapis_lazuli.png", category: "Ores & Gems" },
-      { name: "Copper Ingot", img: BASE_URL + "item/copper_ingot.png", category: "Materials" },
-      { name: "Torch", img: BASE_URL + "block/torch.png", category: "Utility" },
-      { name: "Chest", img: BASE_URL + "item/chest.png", category: "Utility" },
-      { name: "Crafting Table", img: BASE_URL + "block/crafting_table_front.png", category: "Utility" },
-      { name: "Furnace", img: BASE_URL + "block/furnace_front_on.png", category: "Utility" },
-      { name: "Cake", img: BASE_URL + "item/cake.png", category: "Food" },
-      { name: "Cookie", img: BASE_URL + "item/cookie.png", category: "Food" },
-      { name: "Bread", img: BASE_URL + "item/bread.png", category: "Food" },
-      { name: "Apple", img: BASE_URL + "item/apple.png", category: "Food" },
-      { name: "Golden Apple", img: BASE_URL + "item/golden_apple.png", category: "Food" },
-      { name: "Bee Egg", img: BASE_URL + "item/bee_spawn_egg.png", category: "Mobs" },
-      { name: "Wolf Egg", img: BASE_URL + "item/wolf_spawn_egg.png", category: "Mobs" },
-      { name: "Cat Egg", img: BASE_URL + "item/cat_spawn_egg.png", category: "Mobs" },
-      { name: "Pig Egg", img: BASE_URL + "item/pig_spawn_egg.png", category: "Mobs" },
-      { name: "Cow Egg", img: BASE_URL + "item/cow_spawn_egg.png", category: "Mobs" },
-      { name: "Chicken Egg", img: BASE_URL + "item/chicken_spawn_egg.png", category: "Mobs" },
-      { name: "Horse Egg", img: BASE_URL + "item/horse_spawn_egg.png", category: "Mobs" },
-      { name: "Villager Egg", img: BASE_URL + "item/villager_spawn_egg.png", category: "Mobs" },
-      { name: "Iron Golem Egg", img: BASE_URL + "item/iron_golem_spawn_egg.png", category: "Mobs" },
-      { name: "Zombie Egg", img: BASE_URL + "item/zombie_spawn_egg.png", category: "Monsters" },
-      { name: "Skeleton Egg", img: BASE_URL + "item/skeleton_spawn_egg.png", category: "Monsters" },
-      { name: "Spider Egg", img: BASE_URL + "item/spider_spawn_egg.png", category: "Monsters" },
-      { name: "Creeper Egg", img: BASE_URL + "item/creeper_spawn_egg.png", category: "Monsters" },
-      { name: "Enderman Egg", img: BASE_URL + "item/enderman_spawn_egg.png", category: "Monsters" },
-      { name: "Slime Ball", img: BASE_URL + "item/slimeball.png", category: "Monsters" },
-      { name: "TNT", img: BASE_URL + "block/tnt_side.png", category: "Blocks" },
-      { name: "Oak Boat", img: BASE_URL + "item/oak_boat.png", category: "Transport" },
-      { name: "Minecart", img: BASE_URL + "item/minecart.png", category: "Transport" },
-      { name: "Compass", img: BASE_URL + "item/compass_16.png", category: "Tools" },
-      { name: "Clock", img: BASE_URL + "item/clock_00.png", category: "Tools" },
-      { name: "Shield", img: BASE_URL + "item/shield.png", category: "Combat" },
-      { name: "Bow", img: BASE_URL + "item/bow.png", category: "Combat" },
-      { name: "Arrow", img: BASE_URL + "item/arrow.png", category: "Combat" },
-      { name: "Diamond Sword", img: BASE_URL + "item/diamond_sword.png", category: "Combat" },
-      { name: "Diamond Pickaxe", img: BASE_URL + "item/diamond_pickaxe.png", category: "Tools" },
-      { name: "Water Bucket", img: BASE_URL + "item/water_bucket.png", category: "Tools" },
-      { name: "Lava Bucket", img: BASE_URL + "item/lava_bucket.png", category: "Tools" },
-      { name: "Campfire", img: BASE_URL + "item/campfire.png", category: "Utility" },
-      { name: "Lantern", img: BASE_URL + "item/lantern.png", category: "Utility" },
-      { name: "Red Bed", img: BASE_URL + "item/red_bed.png", category: "Utility" },
-      { name: "Bookshelf", img: BASE_URL + "block/bookshelf.png", category: "Blocks" },
-      { name: "Enchanting Table", img: BASE_URL + "block/enchanting_table_top.png", category: "Utility" },
-      { name: "Beacon", img: BASE_URL + "block/beacon.png", category: "Special" },
-      { name: "Nether Star", img: BASE_URL + "item/nether_star.png", category: "Special" },
-      { name: "Dragon Egg", img: BASE_URL + "block/dragon_egg.png", category: "Special" },
-      { name: "Eye of Ender", img: BASE_URL + "item/ender_eye.png", category: "Special" },
-      { name: "Totem of Undying", img: BASE_URL + "item/totem_of_undying.png", category: "Special" },
-      { name: "Honey Bottle", img: BASE_URL + "item/honey_bottle.png", category: "Food" },
-      { name: "Bee Nest", img: BASE_URL + "block/bee_nest_front.png", category: "Nature" },
-      { name: "Red Mushroom", img: BASE_URL + "block/red_mushroom.png", category: "Nature" },
-      { name: "Glow Berries", img: BASE_URL + "item/glow_berries.png", category: "Food" },
-      { name: "Axolotl Bucket", img: BASE_URL + "item/axolotl_bucket.png", category: "Mobs" },
-      { name: "Goat Horn", img: BASE_URL + "item/goat_horn.png", category: "Mobs" },
-      { name: "Camel Egg", img: BASE_URL + "item/camel_spawn_egg.png", category: "Mobs" },
-      { name: "Frog Egg", img: BASE_URL + "item/frog_spawn_egg.png", category: "Mobs" },
-      { name: "Sniffer Egg", img: BASE_URL + "item/sniffer_spawn_egg.png", category: "Mobs" },
-      { name: "Cherry Sapling", img: BASE_URL + "block/cherry_sapling.png", category: "Nature" }
+      { name: "Diamond", img: BASE_ASSET_URL + "diamond.png", category: "Ores & Gems" },
+      { name: "Emerald", img: BASE_ASSET_URL + "emerald.png", category: "Ores & Gems" },
+      { name: "Coal", img: BASE_ASSET_URL + "coal.png", category: "Ores & Gems" },
+      { name: "Iron Ingot", img: BASE_ASSET_URL + "iron_ingot.png", category: "Materials" },
+      { name: "Gold Ingot", img: BASE_ASSET_URL + "gold_ingot.png", category: "Materials" },
+      { name: "Redstone", img: BASE_ASSET_URL + "redstone.png", category: "Mechanics" },
+      { name: "Lapis Lazuli", img: BASE_ASSET_URL + "lapis_lazuli.png", category: "Ores & Gems" },
+      { name: "Copper Ingot", img: BASE_ASSET_URL + "copper_ingot.png", category: "Materials" },
+      { name: "Torch", img: BASE_ASSET_URL + "torch.png", category: "Utility" },
+      { name: "Chest", img: BASE_ASSET_URL + "chest.png", category: "Utility" },
+      { name: "Crafting Table", img: BASE_ASSET_URL + "crafting_table.png", category: "Utility" },
+      { name: "Furnace", img: BASE_ASSET_URL + "furnace.png", category: "Utility" },
+      { name: "Cake", img: BASE_ASSET_URL + "cake.png", category: "Food" },
+      { name: "Cookie", img: BASE_ASSET_URL + "cookie.png", category: "Food" },
+      { name: "Bread", img: BASE_ASSET_URL + "bread.png", category: "Food" },
+      { name: "Apple", img: BASE_ASSET_URL + "apple.png", category: "Food" },
+      { name: "Golden Apple", img: BASE_ASSET_URL + "golden_apple.png", category: "Food" },
+      { name: "Cooked Beef", img: BASE_ASSET_URL + "cooked_beef.png", category: "Food" },
+      { name: "TNT", img: BASE_ASSET_URL + "tnt.png", category: "Blocks" },
+      { name: "Oak Boat", img: BASE_ASSET_URL + "oak_boat.png", category: "Transport" },
+      { name: "Minecart", img: BASE_ASSET_URL + "minecart.png", category: "Transport" },
+      { name: "Compass", img: BASE_ASSET_URL + "compass.png", category: "Tools" },
+      { name: "Clock", img: BASE_ASSET_URL + "clock.png", category: "Tools" },
+      { name: "Shield", img: BASE_ASSET_URL + "shield.png", category: "Combat" },
+      { name: "Bow", img: BASE_ASSET_URL + "bow.png", category: "Combat" },
+      { name: "Arrow", img: BASE_ASSET_URL + "arrow.png", category: "Combat" },
+      { name: "Diamond Sword", img: BASE_ASSET_URL + "diamond_sword.png", category: "Combat" },
+      { name: "Diamond Pickaxe", img: BASE_ASSET_URL + "diamond_pickaxe.png", category: "Tools" },
+      { name: "Water Bucket", img: BASE_ASSET_URL + "water_bucket.png", category: "Tools" },
+      { name: "Lava Bucket", img: BASE_ASSET_URL + "lava_bucket.png", category: "Tools" },
+      { name: "Campfire", img: BASE_ASSET_URL + "campfire.png", category: "Utility" },
+      { name: "Lantern", img: BASE_ASSET_URL + "lantern.png", category: "Utility" },
+      { name: "Red Bed", img: BASE_ASSET_URL + "red_bed.png", category: "Utility" },
+      { name: "Bookshelf", img: BASE_ASSET_URL + "bookshelf.png", category: "Blocks" },
+      { name: "Enchanting Table", img: BASE_ASSET_URL + "enchanting_table.png", category: "Utility" },
+      { name: "Beacon", img: BASE_ASSET_URL + "beacon.png", category: "Special" },
+      { name: "Nether Star", img: BASE_ASSET_URL + "nether_star.png", category: "Special" },
+      { name: "Oak Log", img: BASE_ASSET_URL + "oak_log.png", category: "Nature" },
+      { name: "Ender Pearl", img: BASE_ASSET_URL + "ender_pearl.png", category: "Special" },
+      { name: "Eye of Ender", img: BASE_ASSET_URL + "ender_eye.png", category: "Special" },
+      { name: "Totem of Undying", img: BASE_ASSET_URL + "totem_of_undying.png", category: "Special" },
+      { name: "Honey Bottle", img: BASE_ASSET_URL + "honey_bottle.png", category: "Food" },
+      { name: "Red Mushroom", img: BASE_ASSET_URL + "red_mushroom.png", category: "Nature" },
+      { name: "Glow Berries", img: BASE_ASSET_URL + "glow_berries.png", category: "Food" },
+      { name: "Feather", img: BASE_ASSET_URL + "feather.png", category: "Materials" },
+      { name: "Bone", img: BASE_ASSET_URL + "bone.png", category: "Materials" }
     ];
 
     /* ==========================================================================
-       2. WEB AUDIO SYNTHESIZER
+       2. SOUND ENGINE
        ========================================================================== */
     class SoundEngine {
       constructor() { this.ctx = null; }
@@ -815,33 +752,6 @@
         osc.start(); osc.stop(this.ctx.currentTime + 0.05);
       }
 
-      playChestOpen() {
-        if (!app.settings.sound || !this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-        osc.frequency.linearRampToValueAtTime(300, this.ctx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.15);
-        osc.connect(gain); gain.connect(this.ctx.destination);
-        osc.start(); osc.stop(this.ctx.currentTime + 0.15);
-      }
-
-      playXpDing() {
-        if (!app.settings.sound || !this.ctx) return;
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(850, now);
-        osc.frequency.setValueAtTime(1250, now + 0.08);
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-        osc.connect(gain); gain.connect(this.ctx.destination);
-        osc.start(); osc.stop(now + 0.35);
-      }
-
       playVictory() {
         if (!app.settings.sound || !this.ctx) return;
         const notes = [523.25, 659.25, 783.99, 1046.50];
@@ -860,50 +770,24 @@
     }
 
     /* ==========================================================================
-       3. MAIN APPLICATION ENGINE
+       3. APPLICATION ENGINE
        ========================================================================== */
     class BingoApp {
       constructor() {
-        this.items = [...MINECRAFT_ITEMS];
         this.pool = [];
         this.history = [];
         this.autoTimer = null;
-        this.isDrawing = false;
         this.sound = new SoundEngine();
-
         this.settings = {
           autoInterval: 5000,
           voice: true,
-          sound: true,
-          animSpeed: 1
+          sound: true
         };
-
-        this.loadSettings();
       }
 
       init() {
+        this.resetGame();
         this.renderPrintableCards();
-        document.addEventListener('click', (e) => {
-          if (e.target.closest('button') || e.target.closest('.pixel-btn')) {
-            this.sound.init();
-            this.sound.playClick();
-          }
-        });
-      }
-
-      loadSettings() {
-        const saved = localStorage.getItem('mc_bingo_settings');
-        if (saved) {
-          try { this.settings = { ...this.settings, ...JSON.parse(saved) }; } catch(e){}
-        }
-      }
-
-      saveSettings() {
-        this.settings.autoInterval = parseInt(document.getElementById('set-auto-interval').value);
-        this.settings.voice = document.getElementById('set-voice').checked;
-        this.settings.sound = document.getElementById('set-sound').checked;
-        this.settings.animSpeed = parseFloat(document.getElementById('set-anim-speed').value);
-        localStorage.setItem('mc_bingo_settings', JSON.stringify(this.settings));
       }
 
       showScreen(screenId) {
@@ -926,90 +810,55 @@
         const display = document.getElementById('item-display');
         display.classList.remove('visible');
         document.getElementById('item-name').innerText = "READY?";
-        document.getElementById('item-icon').src = BASE_URL + "item/chest.png";
+        document.getElementById('item-icon').src = BASE_ASSET_URL + "chest.png";
         document.getElementById('item-category').innerText = "Press Draw";
         document.getElementById('history-list').innerHTML = "";
       }
 
       drawNextItem() {
-        if (this.isDrawing) return;
         if (this.pool.length === 0) {
-          alert("All Minecraft items have been drawn!");
+          alert("All items drawn!");
           this.stopAutoDraw();
           return;
         }
 
         this.sound.init();
-        this.isDrawing = true;
-        const btnDraw = document.getElementById('btn-draw');
-        btnDraw.disabled = true;
+        this.sound.playClick();
 
         const chest = document.getElementById('chest-element');
         chest.classList.add('open');
-        this.sound.playChestOpen();
-        this.createParticles();
 
         const index = Math.floor(Math.random() * this.pool.length);
         const selectedItem = this.pool.splice(index, 1)[0];
         this.history.unshift(selectedItem);
 
-        const display = document.getElementById('item-display');
-        display.classList.remove('visible');
-
-        const delay = 400 * parseFloat(this.settings.animSpeed);
-        
         setTimeout(() => {
+          chest.classList.remove('open');
+          
+          const display = document.getElementById('item-display');
           document.getElementById('item-icon').src = selectedItem.img;
           document.getElementById('item-name').innerText = selectedItem.name;
           document.getElementById('item-category').innerText = selectedItem.category;
-          
           display.classList.add('visible');
-          this.sound.playXpDing();
-          this.speakItem(selectedItem.name);
+
+          if (this.settings.voice && 'speechSynthesis' in window) {
+            const speech = new SpeechSynthesisUtterance(selectedItem.name);
+            window.speechSynthesis.speak(speech);
+          }
+
           this.addHistoryItem(selectedItem);
           this.updateUI();
-
-          setTimeout(() => {
-            chest.classList.remove('open');
-            this.isDrawing = false;
-            btnDraw.disabled = false;
-          }, 300);
-        }, delay);
-      }
-
-      speakItem(text) {
-        if (!this.settings.voice || !('speechSynthesis' in window)) return;
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.rate = 0.9;
-        msg.pitch = 1.0;
-        window.speechSynthesis.speak(msg);
-      }
-
-      createParticles() {
-        const field = document.getElementById('particle-field');
-        field.innerHTML = '';
-        for (let i = 0; i < 12; i++) {
-          const p = document.createElement('div');
-          p.className = 'particle';
-          const dx = (Math.random() - 0.5) * 120 + 'px';
-          const dy = - (Math.random() * 80 + 20) + 'px';
-          p.style.setProperty('--dx', dx);
-          p.style.setProperty('--dy', dy);
-          p.style.left = '50%';
-          p.style.top = '40%';
-          p.style.animation = 'sparkle 0.6s ease-out forwards';
-          field.appendChild(p);
-        }
+        }, 300);
       }
 
       toggleAutoDraw() {
+        const btn = document.getElementById('btn-auto');
         if (this.autoTimer) {
           this.stopAutoDraw();
         } else {
-          document.getElementById('btn-auto').innerText = 'Stop Auto';
-          this.drawNextItem();
-          this.autoTimer = setInterval(() => this.drawNextItem(), this.settings.autoInterval);
+          this.autoTimer = setInterval(() => this.drawNextItem(), parseInt(this.settings.autoInterval));
+          btn.innerText = "Stop Auto";
+          btn.classList.add('btn-danger');
         }
       }
 
@@ -1018,33 +867,15 @@
           clearInterval(this.autoTimer);
           this.autoTimer = null;
         }
-        document.getElementById('btn-auto').innerText = 'Auto Draw';
-      }
-
-      updateUI() {
-        const total = MINECRAFT_ITEMS.length;
-        const remaining = this.pool.length;
-        document.getElementById('remaining-count').innerText = `${remaining} / ${total}`;
-        const percentage = ((total - remaining) / total) * 100;
-        document.getElementById('progress-bar').style.width = percentage + '%';
-      }
-
-      addHistoryItem(item) {
-        const list = document.getElementById('history-list');
-        const div = document.createElement('div');
-        div.className = 'history-item';
-        div.innerHTML = `
-          <img class="pixelated" src="${item.img}" alt="${item.name}">
-          <div>
-            <div style="font-size:0.7rem; color:var(--mc-yellow);">${item.name}</div>
-            <div style="font-size:0.55rem; color:#888;">${item.category}</div>
-          </div>
-        `;
-        list.insertBefore(div, list.firstChild);
+        const btn = document.getElementById('btn-auto');
+        if (btn) {
+          btn.innerText = "Auto Draw";
+          btn.classList.remove('btn-danger');
+        }
       }
 
       triggerBingo() {
-        this.stopAutoDraw();
+        this.sound.init();
         this.sound.playVictory();
         document.getElementById('winner-overlay').classList.add('active');
       }
@@ -1053,45 +884,67 @@
         document.getElementById('winner-overlay').classList.remove('active');
       }
 
+      addHistoryItem(item) {
+        const list = document.getElementById('history-list');
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `<img src="${item.img}" class="pixelated" alt="${item.name}"> <span>${item.name}</span>`;
+        list.prepend(div);
+      }
+
+      updateUI() {
+        const remaining = this.pool.length;
+        const total = MINECRAFT_ITEMS.length;
+        document.getElementById('remaining-count').innerText = `${remaining} / ${total}`;
+        
+        const pct = ((total - remaining) / total) * 100;
+        document.getElementById('progress-bar').style.width = pct + '%';
+      }
+
       toggleFullscreen() {
         if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(()=>{});
+          document.documentElement.requestFullscreen().catch(() => {});
         } else {
-          document.exitFullscreen().catch(()=>{});
+          document.exitFullscreen().catch(() => {});
         }
+      }
+
+      saveSettings() {
+        this.settings.autoInterval = document.getElementById('set-auto-interval').value;
+        this.settings.voice = document.getElementById('set-voice').checked;
+        this.settings.sound = document.getElementById('set-sound').checked;
       }
 
       renderPrintableCards() {
         const container = document.getElementById('printable-cards-container');
-        container.innerHTML = '';
-        
+        container.innerHTML = "";
+
         for (let c = 1; c <= 4; c++) {
+          const card = document.createElement('div');
+          card.className = 'bingo-card';
+          
+          let cardHTML = `
+            <div class="card-header">
+              <h2>MINECRAFT BINGO</h2>
+              <p>Card #${c}</p>
+            </div>
+            <div class="bingo-grid">
+          `;
+
           const shuffled = [...MINECRAFT_ITEMS].sort(() => 0.5 - Math.random()).slice(0, 16);
-          let gridHtml = '';
           shuffled.forEach(item => {
-            gridHtml += `
+            cardHTML += `
               <div class="bingo-cell">
-                <img class="cell-img pixelated" src="${item.img}" alt="${item.name}">
+                <img src="${item.img}" class="cell-img pixelated" alt="${item.name}">
                 <div class="cell-name">${item.name}</div>
               </div>
             `;
           });
 
-          const card = document.createElement('div');
-          card.className = 'bingo-card';
-          card.innerHTML = `
-            <div class="card-header">
-              <h2>MINECRAFT BINGO</h2>
-              <p>Card #${c} • Mark items as they appear!</p>
-            </div>
-            <div class="bingo-grid">${gridHtml}</div>
-          `;
+          cardHTML += `</div>`;
+          card.innerHTML = cardHTML;
           container.appendChild(card);
         }
-      }
-
-      regenerateCards() {
-        this.renderPrintableCards();
       }
     }
 
